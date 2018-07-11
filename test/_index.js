@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
+import now from 'performance-now';
 import isValidEmail from '../src';
 
 describe('Check valid emails.', () => {
@@ -74,6 +75,11 @@ describe('Check invalid emails.', () => {
     `Emails without at symbol are invalid. (${emailWOAt})`,
     () => expect(isValidEmail(emailWOAt)).to.equal(false),
   );
+  const emailWAtFirst = '@Abc.example.com';
+  it(
+    `Emails with the at symbol at the beginning are invalid. (${emailWAtFirst})`,
+    () => expect(isValidEmail(emailWAtFirst)).to.equal(false),
+  );
   const emailWODomainPeriod = 'james@google';
   it(
     `Emails without a period in the domain are invalid. (${emailWODomainPeriod})`,
@@ -128,5 +134,34 @@ describe('Check invalid emails.', () => {
   it(
     `Emails with 2 dots together after the at are invalid. (${doubleDotAfterAt})`,
     () => expect(isValidEmail(doubleDotAfterAt)).to.equal(false),
+  );
+});
+
+describe('Check run time for 1000 emails.', () => {
+  const validEmail = 'test@google.com';
+  it(
+    'Valid emails run 1000 times should take less than 10 milliseconds.',
+    () => {
+      const startTime = now();
+      for (let i = 0; i < 1000; i += 1) {
+        isValidEmail(validEmail);
+      }
+      const endTime = now();
+
+      return expect(endTime - startTime).to.be.below(10);
+    },
+  );
+  const invalidEmail = 'invalid@cb$.com';
+  it(
+    'Invalid emails run 1000 times should take less than 10 milliseconds.',
+    () => {
+      const startTime = now();
+      for (let i = 0; i < 1000; i += 1) {
+        isValidEmail(invalidEmail);
+      }
+      const endTime = now();
+
+      return expect(endTime - startTime).to.be.below(10);
+    },
   );
 });
