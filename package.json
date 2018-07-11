@@ -17,7 +17,7 @@
     "valid",
     "check"
   ],
-  "author": "Simeon Smith",
+  "author": "Simeon Smith <ssmith@wombatweb.us> (https://www.simeonsmith.me)",
   "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.26.0",
