@@ -10,12 +10,12 @@ const validEmail = (email) => {
   if (dot <= atSymbol + 1) return false;
   if (dot === email.length - 2) return false;
 
-  // Confirm that there is no spaces.
+  // Confirm that there is no spaces that are not surrounded by quotes.
   const space = email.indexOf(' ');
-  if (space !== -1) return false;
+  if (space !== -1 && email[space + 1] !== '"' && email[space - 1] !== '"') return false;
 
   // Confirm that the domain name is only alpha and periods
-  const domainChars = 'abcdefghijklmnopqrstuvwxyz.'.split('');
+  const domainChars = 'abcdefghijklmnopqrstuvwxyz.-'.split('');
   const domainLetters = email.slice(email.indexOf('@') + 1).split('');
   const isDomainAlpha = () => domainLetters.every(letter => domainChars.indexOf(letter) > -1);
   if (!isDomainAlpha()) return false;
