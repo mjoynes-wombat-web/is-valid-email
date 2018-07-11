@@ -1,7 +1,7 @@
 // VALID EMAIL
 // Attempting to follow rules from https://en.wikipedia.org/wiki/Email_address.
 // Checks if the email is valid.
-const validEmail = (email) => {
+module.exports = (email) => {
   // Need to add support for special local chars that are properly quoted.
   // Need to add support for quotes in ().
   // Checking local section for appropriate characters.
@@ -42,5 +42,3 @@ const validEmail = (email) => {
 
   return true;
 };
-
-export default validEmail;
