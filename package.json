@@ -1,5 +1,5 @@
 {
-  "name": "isvalid-email",
+  "name": "ssmith-is-valid-email",
   "version": "0.9.0",
   "description": "Checks to see if email is valid.",
   "main": "dist/index.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ssmith-wombatweb/isvalid-email.git"
+    "url": "git+https://github.com/ssmith-wombatweb/is-valid-email.git"
   },
   "keywords": [
     "email",
