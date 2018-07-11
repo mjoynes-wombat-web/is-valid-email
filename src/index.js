@@ -12,7 +12,7 @@ const validEmail = (email) => {
 
   // Confirm that there is no spaces that are not surrounded by quotes.
   const space = email.indexOf(' ');
-  if (space !== -1 && email[space + 1] !== '"' && email[space - 1] !== '"') return false;
+  if (space !== -1 && (email[space + 1] !== '"' || email[space - 1] !== '"')) return false;
 
   // Confirm that the domain name is only alpha and periods
   const domainChars = 'abcdefghijklmnopqrstuvwxyz.-'.split('');
