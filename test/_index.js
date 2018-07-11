@@ -111,7 +111,7 @@ describe('Check invalid emails.', () => {
   );
   const emailWQuoteButNoDots = 'just"not"right@example.com';
   it(
-    `Emails with quotes that are no the only thing but not seperated by dots are invalid. (${emailWQuoteButNoDots})`,
+    `Emails with quotes that are not the only thing but not seperated by dots are invalid. (${emailWQuoteButNoDots})`,
     () => expect(isValidEmail(emailWQuoteButNoDots)).to.equal(false),
   );
   const emailWTooLongLocal = '1234567890123456789012345678901234567890123456789012345678901234+x@example.com';
