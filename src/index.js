@@ -1,4 +1,5 @@
 // VALID EMAIL
+// Attempting to follow rules from https://en.wikipedia.org/wiki/Email_address.
 // Checks if the email is valid.
 const validEmail = (email) => {
   // Need to add support for special local chars that are properly quoted.
