@@ -99,4 +99,34 @@ describe('Check invalid emails.', () => {
     `Emails with invalid chars in the domain are invalid. (${emailWInvalidDomainChars})`,
     () => expect(isValidEmail(emailWInvalidDomainChars)).to.equal(false),
   );
+  const emailWMultiAts = 'A@b@c@example.com';
+  it(
+    `Emails with multiple ats are invalid. (${emailWMultiAts})`,
+    () => expect(isValidEmail(emailWMultiAts)).to.equal(false),
+  );
+  const emailWUnquotedSpecialChars = 'a"b(c)d,e:f;g<h>i[j\\k]l@example.com';
+  it(
+    `Emails with unquoted special chars are invalid. (${emailWUnquotedSpecialChars})`,
+    () => expect(isValidEmail(emailWUnquotedSpecialChars)).to.equal(false),
+  );
+  const emailWQuoteButNoDots = 'just"not"right@example.com';
+  it(
+    `Emails with quotes that are no the only thing but not seperated by dots are invalid. (${emailWQuoteButNoDots})`,
+    () => expect(isValidEmail(emailWQuoteButNoDots)).to.equal(false),
+  );
+  const emailWTooLongLocal = '1234567890123456789012345678901234567890123456789012345678901234+x@example.com';
+  it(
+    `Emails with more than 64 chars are invalid. (${emailWTooLongLocal})`,
+    () => expect(isValidEmail(emailWTooLongLocal)).to.equal(false),
+  );
+  const doubleDotBeforeAt = 'john..doe@example.com';
+  it(
+    `Emails with 2 dots together in the local are invalid. (${doubleDotBeforeAt})`,
+    () => expect(isValidEmail(doubleDotBeforeAt)).to.equal(false),
+  );
+  const doubleDotAfterAt = 'john.doe@example..com';
+  it(
+    `Emails with 2 dots together after the at are invalid. (${doubleDotAfterAt})`,
+    () => expect(isValidEmail(doubleDotAfterAt)).to.equal(false),
+  );
 });
