@@ -2,11 +2,15 @@
   "name": "isvalid-email",
   "version": "1.0.0",
   "description": "Checks to see if email is valid.",
-  "main": "build/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "babel src -s -D -d dist --presets es2015,stage-0",
     "start": "node dist",
     "test": "mocha --timeout 10000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ssmith-wombatweb/isvalid-email.git"
   },
   "keywords": [
     "email",
