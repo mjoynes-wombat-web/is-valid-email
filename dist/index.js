@@ -1,12 +1,9 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 // VALID EMAIL
 // Attempting to follow rules from https://en.wikipedia.org/wiki/Email_address.
 // Checks if the email is valid.
-var validEmail = function validEmail(email) {
+module.exports = function (email) {
   // Need to add support for special local chars that are properly quoted.
   // Need to add support for quotes in ().
   // Checking local section for appropriate characters.
@@ -51,6 +48,4 @@ var validEmail = function validEmail(email) {
 
   return true;
 };
-
-exports.default = validEmail;
 //# sourceMappingURL=index.js.map
