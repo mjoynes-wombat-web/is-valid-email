@@ -120,6 +120,11 @@ describe('Check invalid emails.', () => {
     `Emails with quotes that are not the only thing but not seperated by dots are invalid. (${emailWQuoteButNoDots})`,
     () => expect(isValidEmail(emailWQuoteButNoDots)).to.equal(false),
   );
+  const emailWQuoteButMissingDots = 'just."not"right@example.com';
+  it(
+    `Emails with quotes that are not the only thing but are missing some of the dots that should surround quotes are invalid. (${emailWQuoteButMissingDots})`,
+    () => expect(isValidEmail(emailWQuoteButMissingDots)).to.equal(false),
+  );
   const emailWTooLongLocal = '1234567890123456789012345678901234567890123456789012345678901234+x@example.com';
   it(
     `Emails with more than 64 chars are invalid. (${emailWTooLongLocal})`,
