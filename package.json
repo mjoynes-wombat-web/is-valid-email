@@ -1,13 +1,14 @@
 {
   "name": "ssmith-is-valid-email",
-  "version": "0.13.0",
+  "version": "0.16.0",
   "description": "Checks to see if email is valid.",
   "main": "dist/index.js",
   "scripts": {
     "build": "babel src -s -D -d dist --presets es2015,stage-0",
     "start": "node dist",
-    "test": "npx nyc mocha --require babel-core/register --reporter lcovonly -- -R spec",
-    "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
+    "test": "npx nyc --reporter=html mocha --require babel-core/register",
+    "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "push": "npm version minor && git push"
   },
   "repository": {
     "type": "git",
