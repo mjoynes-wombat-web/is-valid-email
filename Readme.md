@@ -3,6 +3,8 @@
 
 [ ![Codeship Status for ssmith-wombatweb/is-valid-email](https://app.codeship.com/projects/7f59b370-6794-0136-94ad-6607b51510b1/status?branch=master)](https://app.codeship.com/projects/297684)
 [![Code Coverage](https://codecov.io/gh/ssmith-wombatweb/is-valid-email/branch/master/graph/badge.svg)](https://codecov.io/gh/ssmith-wombatweb/is-valid-email/branch/master)
+[![Dependencies](https://david-dm.org/ssmith-wombatweb/is-valid-email.svg)](https://david-dm.org/ssmith-wombatweb/is-valid-email.svg)
+[![npm version](https://badge.fury.io/js/ssmith-is-valid-email.svg)](https://badge.fury.io/js/ssmith-is-valid-email)
 
 [Project Repo](https://github.com/ssmith-wombatweb/is-valid-email)
 
