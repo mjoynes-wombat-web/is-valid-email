@@ -5,10 +5,9 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "babel src -s -D -d dist --presets es2015,stage-0",
-    "start": "node dist",
     "test": "npx nyc --reporter=html mocha --require babel-core/register",
     "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "push": "npm version minor && git push"
+    "publish": "npm version minor && npm publish"
   },
   "repository": {
     "type": "git",
