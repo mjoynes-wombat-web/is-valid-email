@@ -18,6 +18,7 @@
     "valid",
     "check"
   ],
+  "engines" : { "node" : "v9.5.0" },
   "author": "Simeon Smith <ssmith@wombatweb.us> (https://www.simeonsmith.me)",
   "license": "MIT",
   "devDependencies": {
