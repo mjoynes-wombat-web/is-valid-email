@@ -2,6 +2,7 @@
 ## A Robust Tool for Validating Emails
 
 [ ![Codeship Status for ssmith-wombatweb/is-valid-email](https://app.codeship.com/projects/7f59b370-6794-0136-94ad-6607b51510b1/status?branch=master)](https://app.codeship.com/projects/297684)
+[![Code Coverage](https://codecov.io/gh/ssmith-wombatweb/is-valid-email/branch/master/graph/badge.svg)](https://codecov.io/gh/ssmith-wombatweb/is-valid-email/branch/master)
 
 [Project Repo](https://github.com/ssmith-wombatweb/is-valid-email)
 
