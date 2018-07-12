@@ -1,6 +1,6 @@
 {
   "name": "ssmith-is-valid-email",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Checks to see if email is valid.",
   "main": "dist/index.js",
   "scripts": {
@@ -18,7 +18,9 @@
     "valid",
     "check"
   ],
-  "engines" : { "node" : "v9.5.0" },
+  "engines": {
+    "node": "v9.5.0"
+  },
   "author": "Simeon Smith <ssmith@wombatweb.us> (https://www.simeonsmith.me)",
   "license": "MIT",
   "devDependencies": {
