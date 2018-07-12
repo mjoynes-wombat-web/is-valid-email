@@ -139,8 +139,9 @@ describe('Check invalid emails.', () => {
 
 describe('Check run time for 1000 emails.', () => {
   const validEmail = 'test@google.com';
+  const maxTime = 20;
   it(
-    'Valid emails run 1000 times should take less than 10 milliseconds.',
+    `Valid emails run 1000 times should take less than ${maxTime} milliseconds.`,
     () => {
       const startTime = now();
       for (let i = 0; i < 1000; i += 1) {
@@ -148,12 +149,12 @@ describe('Check run time for 1000 emails.', () => {
       }
       const endTime = now();
 
-      return expect(endTime - startTime).to.be.below(10);
+      return expect(endTime - startTime).to.be.below(maxTime);
     },
   );
   const invalidEmail = 'invalid@cb$.com';
   it(
-    'Invalid emails run 1000 times should take less than 10 milliseconds.',
+    `Invalid emails run 1000 times should take less than ${maxTime} milliseconds.`,
     () => {
       const startTime = now();
       for (let i = 0; i < 1000; i += 1) {
@@ -161,7 +162,7 @@ describe('Check run time for 1000 emails.', () => {
       }
       const endTime = now();
 
-      return expect(endTime - startTime).to.be.below(10);
+      return expect(endTime - startTime).to.be.below(maxTime);
     },
   );
 });
