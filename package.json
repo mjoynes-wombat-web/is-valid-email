@@ -8,7 +8,7 @@
     "start": "node dist",
     "test": "npx nyc --reporter=html mocha --require babel-core/register",
     "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "push": "npm verion minor && git push"
+    "push": "npm version minor && git push"
   },
   "repository": {
     "type": "git",
