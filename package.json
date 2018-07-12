@@ -1,6 +1,6 @@
 {
   "name": "ssmith-is-valid-email",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Checks to see if email is valid.",
   "main": "dist/index.js",
   "scripts": {
