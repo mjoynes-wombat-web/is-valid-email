@@ -61,13 +61,9 @@ export default class EmailValidator {
       for (key in configParam) {
         if (key in configParam) {
           const configGroup = configParam[key]
-          if (typeof configGroup === 'object') {
-            for (const subKey in configGroup) {
-              const subKeyType = subKey as keyof typeof configGroup
-              this.config[key][subKeyType] = configGroup[subKeyType]
-            }
-          } else {
-            this.config[key] = configGroup
+          for (const subKey in configGroup) {
+            const subKeyType = subKey as keyof typeof configGroup
+            this.config[key][subKeyType] = configGroup[subKeyType]
           }
         }
       }
@@ -132,7 +128,7 @@ export default class EmailValidator {
           letter === '"' &&
           l !== 0 &&
           l !== charsToValidate.length - 1 &&
-          (charsToValidate[l - 1] !== '.' || charsToValidate[l + 1] !== '.')
+          !(charsToValidate[l - 1] === '.' || charsToValidate[l + 1] === '.')
         )
           return false
       }
@@ -172,10 +168,12 @@ export default class EmailValidator {
         localLetters.length -
         `${localLetters}`.split('').reverse().join('').indexOf('"') -
         1
+
       if (indexOfFirstQuoteInLocal < 0 || indexOfLastQuoteInLocal < 0)
         return false
+
       if (
-        indexOfFirstQuoteInLocal >= indexOfDoublePeriods &&
+        indexOfFirstQuoteInLocal >= indexOfDoublePeriods ||
         indexOfDoublePeriods >= indexOfLastQuoteInLocal
       )
         return false
@@ -385,7 +383,7 @@ export default class EmailValidator {
       if (this.dns) {
         this.dns.resolve(domain, 'MX', async function (err, addresses) {
           if (err) {
-            console.log(domain, ' has no mx')
+            console.log(domain, ' has no MX')
             reject()
           } else if (addresses) {
             resolve(addresses)

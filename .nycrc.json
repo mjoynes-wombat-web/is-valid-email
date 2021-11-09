@@ -3,7 +3,7 @@
   "check-coverage": true,
   "extension": [".ts"],
   "include": ["**/src/*.ts"],
-  "reporter": ["cobertura", "text-summary"],
+  "reporter": ["cobertura", "text-summary", "html"],
   "statements": 90,
   "branches": 90,
   "functions": 90,
