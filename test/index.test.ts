@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
-import { EmailValidator, EmailSanitizer } from '../src'
+import { EmailSyntaxValidator, EmailSanitizer } from '../src'
 
 describe('Check sanitizer. | Base config.', async () => {
   const emailSanitizer = new EmailSanitizer()
@@ -96,7 +96,7 @@ describe('Check sanitizer. | Gmail false.', async () => {
 })
 
 describe('Check valid emails. | Base config.', async () => {
-  const emailValidator = new EmailValidator()
+  const emailValidator = new EmailSyntaxValidator()
 
   const simpleEmail = 'simple@example.com'
   it(`Simple emails are valid. (${simpleEmail})`, async () =>
@@ -185,7 +185,7 @@ describe('Check valid emails. | Base config.', async () => {
 })
 
 describe('Check invalid emails. | Base config.', async () => {
-  const emailValidator = new EmailValidator()
+  const emailValidator = new EmailSyntaxValidator()
 
   const emailWOAt = 'Abc.example.com'
   it(`Emails without at symbol are invalid. (${emailWOAt})`, async () =>
@@ -287,7 +287,7 @@ describe('Check invalid emails. | Base config.', async () => {
 })
 
 describe('Check valid emails. | W/Out double periods, and spaces surrounded by quotes.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     local: {
       doublePeriodsInQuotes: false,
       spacesSurroundedByQuote: false,
@@ -370,7 +370,7 @@ describe('Check valid emails. | W/Out double periods, and spaces surrounded by q
 })
 
 describe('Check invalid emails. | W/Out double periods, and spaces surrounded by quotes.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     local: {
       doublePeriodsInQuotes: false,
       spacesSurroundedByQuote: false,
@@ -490,7 +490,7 @@ describe('Check invalid emails. | W/Out double periods, and spaces surrounded by
 })
 
 describe('Check valid emails. | W/Out uppercase letters, and lowercasing.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     local: {
       alphaUpper: false,
     },
@@ -583,7 +583,7 @@ describe('Check valid emails. | W/Out uppercase letters, and lowercasing.', asyn
 })
 
 describe('Check invalid emails. | W/Out uppercase letters, and lowercasing.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     local: {
       alphaUpper: false,
     },
@@ -694,7 +694,7 @@ describe('Check invalid emails. | W/Out uppercase letters, and lowercasing.', as
 })
 
 describe('Check valid emails. | W/Out lowercase letters and lowercasing.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     local: {
       alphaLower: false,
     },
@@ -788,7 +788,7 @@ describe('Check valid emails. | W/Out lowercase letters and lowercasing.', async
 })
 
 describe('Check invalid emails. | W/Out lowercase letters and lowercasing.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     local: {
       alphaLower: false,
     },
@@ -901,7 +901,7 @@ describe('Check invalid emails. | W/Out lowercase letters and lowercasing.', asy
 })
 
 describe('Check valid emails. | W/Out numbers.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     local: {
       numeric: false,
     },
@@ -994,7 +994,7 @@ describe('Check valid emails. | W/Out numbers.', async () => {
 })
 
 describe('Check invalid emails. | W/Out numbers.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     local: {
       numeric: false,
     },
@@ -1104,7 +1104,7 @@ describe('Check invalid emails. | W/Out numbers.', async () => {
 })
 
 describe('Check valid emails. | W/Out periods.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     local: {
       period: false,
     },
@@ -1182,7 +1182,7 @@ describe('Check valid emails. | W/Out periods.', async () => {
 })
 
 describe('Check invalid emails. | W/Out periods.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     local: {
       period: false,
     },
@@ -1294,7 +1294,7 @@ describe('Check invalid emails. | W/Out periods.', async () => {
 })
 
 describe('Check valid emails. | W/Out printable chars, spaces, quotes, or hyphens in domain.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     local: {
       printable: false,
       space: false,
@@ -1340,7 +1340,7 @@ describe('Check valid emails. | W/Out printable chars, spaces, quotes, or hyphen
 })
 
 describe('Check invalid emails. | W/Out printable chars, spaces, quotes, or hyphens in domain.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     local: {
       printable: false,
       space: false,
@@ -1505,7 +1505,7 @@ describe('Check invalid emails. | W/Out printable chars, spaces, quotes, or hyph
 })
 
 describe('Check valid emails. | W/Out character length of domain.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     domain: {
       charsBeforeDot: -1,
       charsAfterDot: -1,
@@ -1609,7 +1609,7 @@ describe('Check valid emails. | W/Out character length of domain.', async () => 
 })
 
 describe('Check invalid emails. | W/Out character length of domain.', async () => {
-  const emailValidator = new EmailValidator({
+  const emailValidator = new EmailSyntaxValidator({
     domain: {
       charsBeforeDot: -1,
       charsAfterDot: -1,
@@ -1708,7 +1708,7 @@ describe('Check invalid emails. | W/Out character length of domain.', async () =
 })
 
 describe('Check run time for 1000 emails.', async () => {
-  const emailValidator = new EmailValidator()
+  const emailValidator = new EmailSyntaxValidator()
 
   const validEmail = 'test@google.com'
   const maxTime = 20

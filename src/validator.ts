@@ -3,7 +3,7 @@
 // Checks if the email is valid.
 
 import { MxRecord } from 'dns'
-class EmailValidator {
+class EmailSyntaxValidator {
   defaultConfig: EmailValidatorConfig = {
     local: {
       alphaUpper: true,
@@ -206,4 +206,4 @@ class EmailValidator {
   }
 }
 
-export default EmailValidator
+export default EmailSyntaxValidator

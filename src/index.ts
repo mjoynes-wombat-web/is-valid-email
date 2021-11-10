@@ -1,5 +1,5 @@
-import EmailValidator from './validator'
+import EmailSyntaxValidator from './validator'
 import EmailSanitizer from './sanitize'
 import EmailDnsValidator from './dnsValidator'
 
-export { EmailValidator, EmailSanitizer, EmailDnsValidator }
+export { EmailSyntaxValidator, EmailSanitizer, EmailDnsValidator }
