@@ -1,4 +1,4 @@
-import EmailSyntaxValidator from './validator'
+import EmailSyntaxValidator from './syntaxValidator'
 import EmailSanitizer from './sanitize'
 import EmailDnsValidator from './dnsValidator'
 
