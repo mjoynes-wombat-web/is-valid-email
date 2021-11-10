@@ -26,6 +26,7 @@ type DomainConfig = {
   numeric: boolean
   period: boolean
   hyphen: boolean
+  tld: boolean
   charsBeforeDot: number // -1 means don't check.
   charsAfterDot: number // -1 means don't check.
 }

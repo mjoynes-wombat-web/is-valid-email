@@ -3,6 +3,7 @@
 // Checks if the email is valid.
 
 import { MxRecord } from 'dns'
+import * as tlds from 'tlds/index.json'
 class EmailSyntaxValidator {
   defaultConfig: EmailValidatorConfig = {
     local: {
@@ -22,6 +23,7 @@ class EmailSyntaxValidator {
       numeric: true,
       period: true,
       hyphen: true,
+      tld: true,
       charsBeforeDot: 1, // -1 means don't check.
       charsAfterDot: 2, // -1 means don't check.
     },
@@ -175,6 +177,22 @@ class EmailSyntaxValidator {
     if (this.config.domain.charsAfterDot !== -1) {
       if (dotIndex === this.email.length - this.config.domain.charsAfterDot)
         return false
+    }
+
+    if (this.config.domain.tld) {
+      const tld = this.email.slice(dotIndex + 1, this.email.length)
+
+      let tldExists = false
+
+      for (let t = 0; t < tlds.length; t++) {
+        const currentTld = tlds[t]
+
+        if (tld.toLowerCase() === currentTld) tldExists = true
+
+        if (tldExists) break
+      }
+
+      if (!tldExists) return false
     }
 
     const validChars = this.gatherChars(this.config.domain)

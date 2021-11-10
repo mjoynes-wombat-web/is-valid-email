@@ -284,6 +284,9 @@ describe('Check invalid emails. | Base config.', async () => {
     expect(await emailValidator.validate(emailWInternalQuoteWDots)).to.equal(
       false
     ))
+  const emailInvalidTld = 'test@example.thisisnotavalidtld'
+  it(`Emails that are non-icann tlds invalid. (${emailInvalidTld})`, async () =>
+    expect(await emailValidator.validate(emailInvalidTld)).to.equal(false))
 })
 
 describe('Check valid emails. | W/Out double periods, and spaces surrounded by quotes.', async () => {
@@ -487,6 +490,10 @@ describe('Check invalid emails. | W/Out double periods, and spaces surrounded by
     expect(await emailValidator.validate(emailWInternalQuoteWDots)).to.equal(
       false
     ))
+
+  const emailInvalidTld = 'test@example.thisisnotavalidtld'
+  it(`Emails that are non-icann tlds invalid. (${emailInvalidTld})`, async () =>
+    expect(await emailValidator.validate(emailInvalidTld)).to.equal(false))
 })
 
 describe('Check valid emails. | W/Out uppercase letters, and lowercasing.', async () => {
@@ -691,6 +698,10 @@ describe('Check invalid emails. | W/Out uppercase letters, and lowercasing.', as
     expect(await emailValidator.validate(emailWInternalQuoteWDots)).to.equal(
       false
     ))
+
+  const emailInvalidTld = 'test@example.thisisnotavalidtld'
+  it(`Emails that are non-icann tlds invalid. (${emailInvalidTld})`, async () =>
+    expect(await emailValidator.validate(emailInvalidTld)).to.equal(false))
 })
 
 describe('Check valid emails. | W/Out lowercase letters and lowercasing.', async () => {
@@ -898,6 +909,10 @@ describe('Check invalid emails. | W/Out lowercase letters and lowercasing.', asy
     expect(await emailValidator.validate(emailWInternalQuoteWDots)).to.equal(
       false
     ))
+
+  const emailInvalidTld = 'test@example.thisisnotavalidtld'
+  it(`Emails that are non-icann tlds invalid. (${emailInvalidTld})`, async () =>
+    expect(await emailValidator.validate(emailInvalidTld)).to.equal(false))
 })
 
 describe('Check valid emails. | W/Out numbers.', async () => {
@@ -1101,6 +1116,10 @@ describe('Check invalid emails. | W/Out numbers.', async () => {
     expect(await emailValidator.validate(emailWInternalQuoteWDots)).to.equal(
       false
     ))
+
+  const emailInvalidTld = 'test@example.thisisnotavalidtld'
+  it(`Emails that are non-icann tlds invalid. (${emailInvalidTld})`, async () =>
+    expect(await emailValidator.validate(emailInvalidTld)).to.equal(false))
 })
 
 describe('Check valid emails. | W/Out periods.', async () => {
@@ -1267,6 +1286,10 @@ describe('Check invalid emails. | W/Out periods.', async () => {
     expect(await emailValidator.validate(emailWInternalQuoteWDots)).to.equal(
       false
     ))
+
+  const emailInvalidTld = 'test@example.thisisnotavalidtld'
+  it(`Emails that are non-icann tlds invalid. (${emailInvalidTld})`, async () =>
+    expect(await emailValidator.validate(emailInvalidTld)).to.equal(false))
 
   // Invalid tests because they need periods.
   // const emailWQuoteButMissingDots = 'just."not"right@example.com'
@@ -1449,6 +1472,10 @@ describe('Check invalid emails. | W/Out printable chars, spaces, quotes, or hyph
       false
     ))
 
+  const emailInvalidTld = 'test@example.thisisnotavalidtld'
+  it(`Emails that are non-icann tlds invalid. (${emailInvalidTld})`, async () =>
+    expect(await emailValidator.validate(emailInvalidTld)).to.equal(false))
+
   const localEndingInNonAlphaNum = 'user-@example.org'
   it(`Emails that end in non-alphanumeric characters are invalid. (${localEndingInNonAlphaNum})`, async () =>
     expect(await emailValidator.validate(localEndingInNonAlphaNum)).to.equal(
@@ -1507,6 +1534,7 @@ describe('Check invalid emails. | W/Out printable chars, spaces, quotes, or hyph
 describe('Check valid emails. | W/Out character length of domain.', async () => {
   const emailValidator = new EmailSyntaxValidator({
     domain: {
+      tld: false,
       charsBeforeDot: -1,
       charsAfterDot: -1,
     },
@@ -1606,11 +1634,16 @@ describe('Check valid emails. | W/Out character length of domain.', async () => 
     expect(await emailValidator.validate(emailWPeriodNearBeginning)).to.equal(
       true
     ))
+
+  const emailInvalidTld = 'test@example.thisisnotavalidtld'
+  it(`Emails that are non-icann tlds valid. (${emailInvalidTld})`, async () =>
+    expect(await emailValidator.validate(emailInvalidTld)).to.equal(true))
 })
 
 describe('Check invalid emails. | W/Out character length of domain.', async () => {
   const emailValidator = new EmailSyntaxValidator({
     domain: {
+      tld: false,
       charsBeforeDot: -1,
       charsAfterDot: -1,
     },
