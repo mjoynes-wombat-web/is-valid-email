@@ -12,10 +12,9 @@ class EmailSyntaxValidator {
       numeric: true,
       period: true,
       printable: true,
-      space: true,
       quote: true,
-      doublePeriodsInQuotes: true,
-      spacesSurroundedByQuote: true,
+      hyphen: true,
+      spaces: true,
     },
     domain: {
       alphaUpper: true,
@@ -24,17 +23,9 @@ class EmailSyntaxValidator {
       period: true,
       hyphen: true,
       tld: true,
+      localhost: false,
       charsBeforeDot: 1, // -1 means don't check.
       charsAfterDot: 2, // -1 means don't check.
-    },
-    dns: {
-      a: 1,
-      ns: 100,
-      spf: 10,
-      mx: 100,
-      port: 10,
-      validScore: 310,
-      smtpPorts: [25, 465, 587],
     },
   }
   config: EmailValidatorConfig = this.defaultConfig
@@ -43,7 +34,7 @@ class EmailSyntaxValidator {
     alphaUpper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
     numeric: '0123456789',
     dot: ',',
-    printable: "!#$%&' * +-/=?^_`{|}~",
+    printable: "!#$%&'*+/=?^_`{|}~",
     space: ' ',
     quote: '"',
     hyphen: '-',
@@ -54,6 +45,8 @@ class EmailSyntaxValidator {
 
   constructor(configParam: EmailValidatorParam = {} as EmailValidatorParam) {
     let key: keyof EmailValidatorConfig
+
+    console.log('validate config')
 
     for (key in configParam) {
       const configGroup = configParam[key]
@@ -66,69 +59,111 @@ class EmailSyntaxValidator {
   private gatherChars(charConfig: LocalConfig | DomainConfig): string[] {
     let characters = ''
 
-    if (charConfig.alphaUpper === true) characters += this.chars.alphaUpper
-    if (charConfig.alphaLower === true) characters += this.chars.alphaLower
-    if (charConfig.numeric === true) characters += this.chars.numeric
-    if (charConfig.period === true) characters += this.chars.period
-    if ('printable' in charConfig && charConfig.printable === true)
-      characters += this.chars.printable
-    if ('space' in charConfig && charConfig.space === true)
-      characters += this.chars.space
-    if ('quote' in charConfig && charConfig.quote === true)
-      characters += this.chars.quote
-    if ('hyphen' in charConfig && charConfig.hyphen === true)
+    if (charConfig.alphaUpper === true) {
+      characters += this.chars.alphaUpper
+    }
+    if (charConfig.alphaLower === true) {
+      characters += this.chars.alphaLower
+    }
+    if (charConfig.numeric === true) {
+      characters += this.chars.numeric
+    }
+
+    if (charConfig.hyphen === true) {
       characters += this.chars.hyphen
+    }
+    if ('printable' in charConfig && charConfig.printable === true) {
+      characters += this.chars.printable
+    }
+
+    if ('spaces' in charConfig && charConfig.spaces === true) {
+      characters += this.chars.space
+    }
+
+    if ('quote' in charConfig && charConfig.quote === true) {
+      characters += this.chars.quote
+    }
+
+    if (charConfig.period === true) {
+      characters += this.chars.period
+    }
 
     return characters.split('')
   }
   private validateGeneral(): boolean {
     // Confirm that there is an at symbol and it isn't the first character.
     const atSymbolIndex = this.email.indexOf('@')
-    if (atSymbolIndex < 1) return false
+    if (atSymbolIndex < 1) {
+      return false
+    }
 
     return true
   }
   private validateChars(chars: string[], charsToValidate: string[]): boolean {
+    let quoteOpen = false
     for (let l = 0; l < charsToValidate.length; l++) {
       const letter = charsToValidate[l]
       if (this.config.local.quote) {
-        if (
-          letter === '"' &&
-          l !== 0 &&
-          l !== charsToValidate.length - 1 &&
-          !(charsToValidate[l - 1] === '.' || charsToValidate[l + 1] === '.')
-        )
-          return false
+        if (letter === '"') {
+          quoteOpen = !quoteOpen
+
+          if (l !== 0 && l !== charsToValidate.length - 1) {
+            if (quoteOpen && !(charsToValidate[l - 1] === '.')) {
+              return false
+            } else if (!quoteOpen && !(charsToValidate[l + 1] === '.')) {
+              return false
+            }
+          }
+        }
       }
 
       const letterInAllowed = chars.indexOf(letter) !== -1
 
-      if (!letterInAllowed) return false
+      if (!letterInAllowed) {
+        return false
+      }
     }
 
     return true
   }
   private validateLocal(): boolean {
     const validChars = this.gatherChars(this.config.local)
-    const localLetters = this.email.slice(0, this.email.indexOf('@')).split('')
+    let localLetters = this.email.slice(0, this.email.indexOf('@')).split('')
+
+    if (this.config.local.printable) {
+      const percentInLocalIndex = localLetters.indexOf('%')
+
+      if (percentInLocalIndex !== -1) {
+        localLetters = localLetters.slice(0, percentInLocalIndex)
+      }
+
+      const bangInLocalIndex = localLetters.indexOf('!')
+
+      if (bangInLocalIndex !== -1) {
+        localLetters = localLetters.slice(bangInLocalIndex)
+      }
+    }
 
     // Validate local length
-    if (localLetters.length > 64) return false
+    if (localLetters.length > 64) {
+      return false
+    }
 
     const charsValid = this.validateChars(validChars, localLetters)
 
-    if (!charsValid) return false
+    if (!charsValid) {
+      return false
+    }
 
     // Make sure there are not two periods together.
     const indexOfDoublePeriods = this.email.indexOf('..')
 
-    if (
-      this.config.local.doublePeriodsInQuotes &&
-      indexOfDoublePeriods !== -1
-    ) {
+    if (indexOfDoublePeriods !== -1) {
       // If double periods before at symbol it's invalid.
       const atSymbolIndex = this.email.indexOf('@')
-      if (indexOfDoublePeriods > atSymbolIndex) return false
+      if (indexOfDoublePeriods > atSymbolIndex) {
+        return false
+      }
 
       // If double period is not within quotes.
       const indexOfFirstQuoteInLocal = localLetters.indexOf('"')
@@ -137,72 +172,140 @@ class EmailSyntaxValidator {
         `${localLetters}`.split('').reverse().join('').indexOf('"') -
         1
 
-      if (indexOfFirstQuoteInLocal < 0 || indexOfLastQuoteInLocal < 0)
+      if (indexOfFirstQuoteInLocal < 0 || indexOfLastQuoteInLocal < 0) {
         return false
+      }
 
       if (
         indexOfFirstQuoteInLocal >= indexOfDoublePeriods ||
         indexOfDoublePeriods >= indexOfLastQuoteInLocal
-      )
+      ) {
         return false
-    } else if (indexOfDoublePeriods !== -1) return false
+      }
+    }
 
     // Confirm that there is no spaces that are not surrounded by quotes.
     const indexOfSpace = localLetters.indexOf(' ')
 
-    if (this.config.local.spacesSurroundedByQuote) {
-      if (
-        indexOfSpace !== -1 &&
-        (localLetters[indexOfSpace + 1] !== '"' ||
-          localLetters[indexOfSpace - 1] !== '"')
-      )
-        return false
-    } else if (indexOfSpace !== -1) return false
+    if (
+      indexOfSpace !== -1 &&
+      (localLetters[indexOfSpace + 1] !== '"' ||
+        localLetters[indexOfSpace - 1] !== '"')
+    ) {
+      return false
+    }
+
+    return true
+  }
+  private validateDomainParts(domain: string): boolean {
+    const dotIndex = domain.lastIndexOf('.')
+
+    if (dotIndex === -1 && this.config.domain.localhost === false) {
+      return false
+    }
+
+    if (dotIndex !== -1) {
+      if (this.config.domain.charsBeforeDot !== -1) {
+        if (dotIndex <= this.config.domain.charsBeforeDot) {
+          return false
+        }
+      }
+
+      if (this.config.domain.charsAfterDot !== -1) {
+        if (dotIndex === domain.length - this.config.domain.charsAfterDot) {
+          return false
+        }
+      }
+
+      if (this.config.domain.tld) {
+        const tld = domain.slice(dotIndex + 1)
+
+        let tldExists = false
+
+        for (let t = 0; t < tlds.length; t++) {
+          const currentTld = tlds[t]
+
+          if (tld.toLowerCase() === currentTld) {
+            tldExists = true
+          }
+
+          if (tldExists) {
+            break
+          }
+        }
+
+        if (!tldExists) {
+          return false
+        }
+      }
+    }
 
     return true
   }
   private validateDomain(): boolean {
     // Confirm that there is a dot at least 1 character after the at and 2 characters before the end.
-    const dotIndex = this.email.lastIndexOf('.')
+    const domain = this.email.slice(this.email.indexOf('@') + 1)
 
-    const atSymbolIndex = this.email.indexOf('@')
+    const domainPartsValid = this.validateDomainParts(domain)
 
-    if (dotIndex === -1) return false
-
-    if (this.config.domain.charsBeforeDot !== -1) {
-      if (dotIndex <= atSymbolIndex + this.config.domain.charsBeforeDot + 1)
-        return false
-    }
-
-    if (this.config.domain.charsAfterDot !== -1) {
-      if (dotIndex === this.email.length - this.config.domain.charsAfterDot)
-        return false
-    }
-
-    if (this.config.domain.tld) {
-      const tld = this.email.slice(dotIndex + 1, this.email.length)
-
-      let tldExists = false
-
-      for (let t = 0; t < tlds.length; t++) {
-        const currentTld = tlds[t]
-
-        if (tld.toLowerCase() === currentTld) tldExists = true
-
-        if (tldExists) break
-      }
-
-      if (!tldExists) return false
+    if (!domainPartsValid) {
+      return false
     }
 
     const validChars = this.gatherChars(this.config.domain)
-    const domainLetters = this.email
-      .slice(this.email.indexOf('@') + 1)
-      .split('')
+    const domainLetters = domain.split('')
+
+    if (this.config.local.printable) {
+      const localLetters = this.email
+        .slice(0, this.email.indexOf('@'))
+        .split('')
+
+      const percentInLocalIndex = localLetters.indexOf('%')
+
+      if (percentInLocalIndex !== -1) {
+        const relayDomain = localLetters.slice(percentInLocalIndex + 1)
+
+        const relayDomainPartsValid = this.validateDomainParts(
+          relayDomain.join('')
+        )
+
+        if (!relayDomainPartsValid) {
+          return false
+        }
+
+        const charsValid = this.validateChars(validChars, relayDomain)
+
+        if (!charsValid) {
+          return false
+        }
+      }
+
+      const bangInLocalIndex = localLetters.indexOf('!')
+
+      if (bangInLocalIndex !== -1) {
+        const relayDomain = localLetters.slice(0, bangInLocalIndex)
+
+        const relayDomainPartsValid = this.validateDomainParts(
+          relayDomain.join('')
+        )
+
+        if (!relayDomainPartsValid) {
+          return false
+        }
+
+        const charsValid = this.validateChars(validChars, relayDomain)
+
+        if (!charsValid) {
+          return false
+        }
+      }
+    }
 
     const charsValid = this.validateChars(validChars, domainLetters)
 
-    if (!charsValid) return false
+    if (!charsValid) {
+      return false
+    }
 
     return true
   }
@@ -212,13 +315,19 @@ class EmailSyntaxValidator {
     // Need to add support for special local chars that are properly quoted.
     // Need to add support for quotes in ().
     const generalValid = this.validateGeneral()
-    if (!generalValid) return false
+    if (!generalValid) {
+      return false
+    }
 
     const localValid = this.validateLocal()
-    if (!localValid) return false
+    if (!localValid) {
+      return false
+    }
 
     const domainValid = this.validateDomain()
-    if (!domainValid) return false
+    if (!domainValid) {
+      return false
+    }
 
     return true
   }

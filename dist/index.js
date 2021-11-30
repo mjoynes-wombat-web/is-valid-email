@@ -1,2 +1,10 @@
-'use strict';module.exports=function(a){var b=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9','.','!','#','$','%','&','\'','*','+','-','/','=','?','^','_','`','{','|','}','~',' ','"'],c=a.slice(0,a.indexOf('@')).split('');if(64<c.length)return!1;if(!function a(){return c.every(function(a,d){return('"'!==a||0===d||d===c.length-1||'.'===c[d-1]&&'.'===c[d+1])&&-1!==b.indexOf(a)})}())return!1;if(-1!==a.indexOf('..'))return!1;var d=a.indexOf('@');if(1>d)return!1;var e=a.lastIndexOf('.');if(e<=d+1)return!1;if(e===a.length-2)return!1;var f=a.indexOf(' ');if(-1!==f&&('"'!==a[f+1]||'"'!==a[f-1]))return!1;var g=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','.','-'],h=a.slice(a.indexOf('@')+1).split('');return!!function a(){return h.every(function(a){return-1!==g.indexOf(a)})}()};
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EmailDnsValidator = exports.EmailSanitizer = exports.EmailSyntaxValidator = void 0;
+const syntaxValidator_1 = require("./syntaxValidator");
+exports.EmailSyntaxValidator = syntaxValidator_1.default;
+const sanitize_1 = require("./sanitize");
+exports.EmailSanitizer = sanitize_1.default;
+const dnsValidator_1 = require("./dnsValidator");
+exports.EmailDnsValidator = dnsValidator_1.default;
 //# sourceMappingURL=index.js.map

@@ -13,6 +13,7 @@ class EmailDnsValidator {
     validScore: 310,
     smtpPorts: [25, 465, 587],
   }
+  // Add in domain allow list.
   config: DnsConfig = this.defaultConfig
   email = ''
 
@@ -76,7 +77,9 @@ class EmailDnsValidator {
                       promises.push(
                         this.isPortReachable(port, { host })
                           .then((reachable) => {
-                            if (reachable) score += this.config.port
+                            if (reachable) {
+                              score += this.config.port
+                            }
                           })
                           .catch((err) =>
                             console.error('ERROR REACHING PORT: ', err)
@@ -130,7 +133,9 @@ class EmailDnsValidator {
 
       await Promise.all(promises)
 
-      if (dnsValidationFail) return false
+      if (dnsValidationFail) {
+        return false
+      }
 
       if (this.config.validScore <= score) {
         return true
@@ -260,7 +265,9 @@ class EmailDnsValidator {
     this.email = email
 
     const dnsValid = await this.validateDNS()
-    if (!dnsValid) return false
+    if (!dnsValid) {
+      return false
+    }
 
     return true
   }

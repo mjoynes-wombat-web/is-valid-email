@@ -63,7 +63,8 @@
     ],
     "rules": {
       "no-unused-vars": "warn",
-      "no-prototype-builtins": "warn"
+      "no-prototype-builtins": "warn",
+      "curly": "warn"
     },
     "globals": {
       "fetch": true

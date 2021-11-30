@@ -1,12 +1,10 @@
 interface EmailValidatorConfig {
   local: LocalConfig
   domain: DomainConfig
-  dns: DnsConfig
 }
 interface EmailValidatorParam {
   local?: LocalConfig
   domain?: DomainConfig
-  dns?: DnsConfig
 }
 type LocalConfig = {
   alphaUpper: boolean
@@ -14,10 +12,9 @@ type LocalConfig = {
   numeric: boolean
   period: boolean
   printable: boolean
-  space: boolean
   quote: boolean
-  doublePeriodsInQuotes: boolean
-  spacesSurroundedByQuote: boolean
+  hyphen: boolean
+  spaces: boolean
 }
 
 type DomainConfig = {
@@ -27,6 +24,7 @@ type DomainConfig = {
   period: boolean
   hyphen: boolean
   tld: boolean
+  localhost: boolean
   charsBeforeDot: number // -1 means don't check.
   charsAfterDot: number // -1 means don't check.
 }

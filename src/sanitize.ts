@@ -18,9 +18,13 @@ class EmailSanitizer {
     this.originalEmail = email
     this.email = email
 
-    if (this.config.lowercase) this.email = this.email.toLowerCase()
+    if (this.config.lowercase) {
+      this.email = this.email.toLowerCase()
+    }
 
-    if (this.config.gmail) this.sanitizeGmail()
+    if (this.config.gmail) {
+      this.sanitizeGmail()
+    }
 
     return this.email
   }
