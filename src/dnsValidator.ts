@@ -306,9 +306,7 @@ class EmailDnsValidator {
 
           const domain = address.exchange.toLowerCase()
 
-          if (domain.indexOf('gmail-smtp-in.l.google.com') !== -1) {
-            isGSuite = true
-          } else if (domain.indexOf('aspmx.l.google.com') !== -1) {
+          if (domain.indexOf('aspmx.l.google.com') !== -1) {
             isGSuite = true
           }
         }
