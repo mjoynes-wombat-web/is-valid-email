@@ -268,9 +268,13 @@ class EmailDnsValidator {
     }
   }
 
+  private setEmailDetails(email: string) {
+    this.email = email.trim()
+    this.domain = this.email.slice(this.email.indexOf('@') + 1).toLowerCase()
+  }
+
   public async validate(email: string): Promise<boolean> {
-    this.email = email
-    this.domain = this.email.slice(this.email.indexOf('@') + 1)
+    this.setEmailDetails(email)
 
     if (!this.dependenciesSetup) {
       await this.setupDependencies()
@@ -285,8 +289,7 @@ class EmailDnsValidator {
   }
 
   public async isGSuiteMX(email: string) {
-    this.email = email
-    this.domain = this.email.slice(this.email.indexOf('@') + 1)
+    this.setEmailDetails(email)
 
     if (!this.dependenciesSetup) {
       await this.setupDependencies()
@@ -301,7 +304,7 @@ class EmailDnsValidator {
         for (let a = 0; a < addresses.length; a++) {
           const address = addresses[a]
 
-          const domain = address.exchange
+          const domain = address.exchange.toLowerCase()
 
           if (domain.indexOf('gmail-smtp-in.l.google.com') !== -1) {
             isGSuite = true

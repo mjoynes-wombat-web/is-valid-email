@@ -255,10 +255,13 @@ class EmailDnsValidator {
             }
         });
     }
+    setEmailDetails(email) {
+        this.email = email.trim();
+        this.domain = this.email.slice(this.email.indexOf('@') + 1).toLowerCase();
+    }
     validate(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.email = email;
-            this.domain = this.email.slice(this.email.indexOf('@') + 1);
+            this.setEmailDetails(email);
             if (!this.dependenciesSetup) {
                 yield this.setupDependencies();
             }
@@ -273,8 +276,7 @@ class EmailDnsValidator {
     }
     isGSuiteMX(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.email = email;
-            this.domain = this.email.slice(this.email.indexOf('@') + 1);
+            this.setEmailDetails(email);
             if (!this.dependenciesSetup) {
                 yield this.setupDependencies();
             }
@@ -284,7 +286,7 @@ class EmailDnsValidator {
                 if (addresses) {
                     for (let a = 0; a < addresses.length; a++) {
                         const address = addresses[a];
-                        const domain = address.exchange;
+                        const domain = address.exchange.toLowerCase();
                         if (domain.indexOf('gmail-smtp-in.l.google.com') !== -1) {
                             isGSuite = true;
                         }
