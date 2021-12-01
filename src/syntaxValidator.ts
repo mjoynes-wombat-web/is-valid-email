@@ -56,7 +56,9 @@ class EmailSyntaxValidator {
       }
     }
   }
-  private gatherChars(charConfig: LocalConfig | DomainConfig): string[] {
+  private gatherChars(
+    charConfig: LocalValidateConfig | DomainValidateConfig
+  ): string[] {
     let characters = ''
 
     if (charConfig.alphaUpper === true) {

@@ -16,6 +16,9 @@ class EmailDnsValidator {
   // Add in domain allow list.
   config: DnsConfig = this.defaultConfig
   email = ''
+  domain = ''
+  dependenciesSetup = false
+  canValidate = false
 
   constructor(configParam: DnsParam = {} as DnsParam) {
     let key: keyof DnsParam
@@ -23,11 +26,14 @@ class EmailDnsValidator {
     for (key in configParam) {
       this.config[key] = configParam[key] as number & number[]
     }
+
+    this.setupDependencies()
   }
   dns?: typeof import('dns')
   net?: typeof import('net')
   os?: typeof import('os')
-  private async validateDNS(): Promise<boolean> {
+  private async setupDependencies() {
+    this.dependenciesSetup = true
     if (
       typeof window === 'undefined' &&
       (this.config.ns !== -1 ||
@@ -35,123 +41,124 @@ class EmailDnsValidator {
         this.config.spf !== -1 ||
         this.config.a !== -1)
     ) {
-      let dnsValidationFail = false
       this.dns = await import('dns')
       this.net = await import('net')
       this.os = await import('os')
 
-      let score = 0
-      const promises = []
+      this.canValidate = true
+    }
+  }
+  private async validateDNS(): Promise<boolean> {
+    let dnsValidationFail = false
 
-      const domain = this.email.slice(this.email.indexOf('@') + 1)
+    let score = 0
+    const promises = []
 
-      if (this.config.ns !== -1) {
-        promises.push(
-          this.getNsRecord(domain)
-            .then((addresses) => {
-              if (addresses.length) {
-                score += this.config.ns
-              }
-            })
-            .catch((err) => {
-              dnsValidationFail = true
-              console.error('ERROR GETTING NS: ', err)
-            })
-        )
-      }
+    if (this.config.ns !== -1) {
+      promises.push(
+        this.getNsRecord()
+          .then((addresses) => {
+            if (addresses.length) {
+              score += this.config.ns
+            }
+          })
+          .catch((err) => {
+            dnsValidationFail = true
+            console.error('ERROR GETTING NS: ', err)
+          })
+      )
+    }
 
-      if (this.config.mx !== -1) {
-        // Grab MX records.
-        promises.push(
-          this.getMxRecord(domain)
-            .then((addresses) => {
-              if (addresses.length) {
-                score += this.config.mx
-                if (this.config.port !== -1) {
-                  // Check ports on MX records.
-                  for (let p = 0; p < this.config.smtpPorts.length; p++) {
-                    const port = this.config.smtpPorts[p]
-                    for (let a = 0; a < addresses.length; a++) {
-                      const host = addresses[a].exchange
+    if (this.config.mx !== -1) {
+      // Grab MX records.
+      promises.push(
+        this.getMxRecord()
+          .then((addresses) => {
+            if (addresses.length) {
+              score += this.config.mx
+              if (this.config.port !== -1) {
+                // Check ports on MX records.
+                for (let p = 0; p < this.config.smtpPorts.length; p++) {
+                  const port = this.config.smtpPorts[p]
+                  for (let a = 0; a < addresses.length; a++) {
+                    const host = addresses[a].exchange
 
-                      promises.push(
-                        this.isPortReachable(port, { host })
-                          .then((reachable) => {
-                            if (reachable) {
-                              score += this.config.port
-                            }
-                          })
-                          .catch((err) =>
-                            console.error('ERROR REACHING PORT: ', err)
-                          )
-                      )
-                    }
+                    promises.push(
+                      this.isPortReachable(port, { host })
+                        .then((reachable) => {
+                          if (reachable) {
+                            score += this.config.port
+                          }
+                        })
+                        .catch((err) =>
+                          console.error('ERROR REACHING PORT: ', err)
+                        )
+                    )
                   }
                 }
               }
-            })
-            .catch((err) => {
-              dnsValidationFail = true
-              console.error('ERROR GETTING MX: ', err)
-            })
-        )
-      }
-
-      if (this.config.spf !== -1) {
-        // Grab TXT records and check for spf.
-        promises.push(
-          this.getTxtRecord(domain)
-            .then((addresses) => {
-              for (let a = 0; a < addresses.length; a++) {
-                const address = addresses[a]
-
-                if (address.indexOf('spf') !== -1) {
-                  score += this.config.spf
-                  break
-                }
-              }
-            })
-            .catch((err) => {
-              console.error('ERROR GETTING TXT: ', err)
-            })
-        )
-      }
-
-      if (this.config.a !== -1) {
-        promises.push(
-          this.getARecord(domain)
-            .then((addresses) => {
-              if (addresses.length) {
-                score += this.config.a
-              }
-            })
-            .catch((err) => {
-              console.error('ERROR GETTING A: ', err)
-            })
-        )
-      }
-
-      await Promise.all(promises)
-
-      if (dnsValidationFail) {
-        return false
-      }
-
-      if (this.config.validScore <= score) {
-        return true
-      } else {
-        return false
-      }
+            }
+          })
+          .catch((err) => {
+            dnsValidationFail = true
+            console.error('ERROR GETTING MX: ', err)
+          })
+      )
     }
-    return true
+
+    if (this.config.spf !== -1) {
+      // Grab TXT records and check for spf.
+      promises.push(
+        this.getTxtRecord()
+          .then((addresses) => {
+            for (let a = 0; a < addresses.length; a++) {
+              const address = addresses[a]
+
+              if (address.indexOf('spf') !== -1) {
+                score += this.config.spf
+                break
+              }
+            }
+          })
+          .catch((err) => {
+            console.error('ERROR GETTING TXT: ', err)
+          })
+      )
+    }
+
+    if (this.config.a !== -1) {
+      promises.push(
+        this.getARecord()
+          .then((addresses) => {
+            if (addresses.length) {
+              score += this.config.a
+            }
+          })
+          .catch((err) => {
+            console.error('ERROR GETTING A: ', err)
+          })
+      )
+    }
+
+    await Promise.all(promises)
+
+    if (dnsValidationFail) {
+      return false
+    }
+
+    if (this.config.validScore <= score) {
+      return true
+    } else {
+      return false
+    }
   }
 
-  private async getNsRecord(domain: string): Promise<string[]> {
+  private async getNsRecord(): Promise<string[]> {
     return new Promise((resolve, reject) => {
       if (this.dns) {
-        this.dns.resolve(domain, 'NS', async function (err, addresses) {
+        this.dns.resolve(this.domain, 'NS', async (err, addresses) => {
           if (err) {
-            console.log(domain, ' has no NS')
+            console.log(this.domain, ' has no NS')
             reject()
           } else if (addresses) {
             resolve(addresses)
@@ -160,18 +167,18 @@ class EmailDnsValidator {
           }
         })
       } else {
-        console.error('Not in node.')
-        resolve([])
+        console.error('"dns" is undefined.')
+        reject()
       }
     })
   }
 
-  private async getARecord(domain: string): Promise<string[]> {
+  private async getARecord(): Promise<string[]> {
     return new Promise((resolve, reject) => {
       if (this.dns) {
-        this.dns.resolve(domain, 'A', async function (err, addresses) {
+        this.dns.resolve(this.domain, 'A', async (err, addresses) => {
           if (err) {
-            console.log(domain, ' has no NS')
+            console.log(this.domain, ' has no NS')
             reject()
           } else if (addresses) {
             resolve(addresses)
@@ -180,18 +187,18 @@ class EmailDnsValidator {
           }
         })
       } else {
-        console.error('Not in node.')
-        resolve([])
+        console.error('"dns" is undefined.')
+        reject()
       }
     })
   }
 
-  private async getMxRecord(domain: string): Promise<MxRecord[]> {
+  private async getMxRecord(): Promise<MxRecord[]> {
     return new Promise((resolve, reject) => {
       if (this.dns) {
-        this.dns.resolve(domain, 'MX', async function (err, addresses) {
+        this.dns.resolve(this.domain, 'MX', async (err, addresses) => {
           if (err) {
-            console.log(domain, ' has no MX')
+            console.log(this.domain, ' has no MX')
             reject()
           } else if (addresses) {
             resolve(addresses)
@@ -200,18 +207,18 @@ class EmailDnsValidator {
           }
         })
       } else {
-        console.error('Not in node.')
-        resolve([])
+        console.error('"dns" is undefined.')
+        reject()
       }
     })
   }
 
-  private async getTxtRecord(domain: string): Promise<string[][]> {
+  private async getTxtRecord(): Promise<string[][]> {
     return new Promise((resolve, reject) => {
       if (this.dns) {
-        this.dns.resolve(domain, 'TXT', async function (err, addresses) {
+        this.dns.resolve(this.domain, 'TXT', async (err, addresses) => {
           if (err) {
-            console.log(domain, ' has no TXT')
+            console.log(this.domain, ' has no TXT')
             reject()
           } else if (addresses) {
             resolve(addresses)
@@ -220,8 +227,8 @@ class EmailDnsValidator {
           }
         })
       } else {
-        console.error('Not in node.')
-        resolve([])
+        console.error('"dns" is undefined.')
+        reject()
       }
     })
   }
@@ -248,8 +255,8 @@ class EmailDnsValidator {
           resolve(true)
         })
       } else {
-        console.error('Not in node.')
-        resolve(true)
+        console.error('"net" is undefined.')
+        reject()
       }
     })
 
@@ -263,13 +270,51 @@ class EmailDnsValidator {
 
   public async validate(email: string): Promise<boolean> {
     this.email = email
+    this.domain = this.email.slice(this.email.indexOf('@') + 1)
 
-    const dnsValid = await this.validateDNS()
-    if (!dnsValid) {
-      return false
+    if (!this.dependenciesSetup) {
+      await this.setupDependencies()
     }
 
-    return true
+    if (this.canValidate) {
+      return await this.validateDNS()
+    } else {
+      console.error('Cannot validate.')
+      return true
+    }
+  }
+
+  public async isGSuiteMX(email: string) {
+    this.email = email
+    this.domain = this.email.slice(this.email.indexOf('@') + 1)
+
+    if (!this.dependenciesSetup) {
+      await this.setupDependencies()
+    }
+
+    let isGSuite = false
+
+    try {
+      const addresses = await this.getMxRecord()
+
+      if (addresses) {
+        for (let a = 0; a < addresses.length; a++) {
+          const address = addresses[a]
+
+          const domain = address.exchange
+
+          if (domain.indexOf('gmail-smtp-in.l.google.com') !== -1) {
+            isGSuite = true
+          } else if (domain.indexOf('aspmx.l.google.com') !== -1) {
+            isGSuite = true
+          }
+        }
+      }
+    } catch (getMxRecordErr) {
+      console.error('ERROR GETTING MX: ', getMxRecordErr)
+    }
+
+    return isGSuite
   }
 }
 

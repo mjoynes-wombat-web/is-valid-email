@@ -22,204 +22,204 @@ class EmailDnsValidator {
         };
         this.config = this.defaultConfig;
         this.email = '';
+        this.domain = '';
+        this.dependenciesSetup = false;
+        this.canValidate = false;
         let key;
         for (key in configParam) {
             this.config[key] = configParam[key];
         }
+        this.setupDependencies();
     }
-    validateDNS() {
+    setupDependencies() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.dependenciesSetup = true;
             if (typeof window === 'undefined' &&
                 (this.config.ns !== -1 ||
                     this.config.mx !== -1 ||
                     this.config.spf !== -1 ||
                     this.config.a !== -1)) {
-                let dnsValidationFail = false;
                 this.dns = yield Promise.resolve().then(() => require('dns'));
                 this.net = yield Promise.resolve().then(() => require('net'));
                 this.os = yield Promise.resolve().then(() => require('os'));
-                let score = 0;
-                const promises = [];
-                const domain = this.email.slice(this.email.indexOf('@') + 1);
-                if (this.config.ns !== -1) {
-                    promises.push(this.getNsRecord(domain)
-                        .then((addresses) => {
-                        if (addresses.length) {
-                            score += this.config.ns;
-                        }
-                    })
-                        .catch((err) => {
-                        dnsValidationFail = true;
-                        console.error('ERROR GETTING NS: ', err);
-                    }));
-                }
-                if (this.config.mx !== -1) {
-                    promises.push(this.getMxRecord(domain)
-                        .then((addresses) => {
-                        if (addresses.length) {
-                            score += this.config.mx;
-                            if (this.config.port !== -1) {
-                                for (let p = 0; p < this.config.smtpPorts.length; p++) {
-                                    const port = this.config.smtpPorts[p];
-                                    for (let a = 0; a < addresses.length; a++) {
-                                        const host = addresses[a].exchange;
-                                        promises.push(this.isPortReachable(port, { host })
-                                            .then((reachable) => {
-                                            if (reachable) {
-                                                score += this.config.port;
-                                            }
-                                        })
-                                            .catch((err) => console.error('ERROR REACHING PORT: ', err)));
-                                    }
+                this.canValidate = true;
+            }
+        });
+    }
+    validateDNS() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let dnsValidationFail = false;
+            let score = 0;
+            const promises = [];
+            if (this.config.ns !== -1) {
+                promises.push(this.getNsRecord()
+                    .then((addresses) => {
+                    if (addresses.length) {
+                        score += this.config.ns;
+                    }
+                })
+                    .catch((err) => {
+                    dnsValidationFail = true;
+                    console.error('ERROR GETTING NS: ', err);
+                }));
+            }
+            if (this.config.mx !== -1) {
+                promises.push(this.getMxRecord()
+                    .then((addresses) => {
+                    if (addresses.length) {
+                        score += this.config.mx;
+                        if (this.config.port !== -1) {
+                            for (let p = 0; p < this.config.smtpPorts.length; p++) {
+                                const port = this.config.smtpPorts[p];
+                                for (let a = 0; a < addresses.length; a++) {
+                                    const host = addresses[a].exchange;
+                                    promises.push(this.isPortReachable(port, { host })
+                                        .then((reachable) => {
+                                        if (reachable) {
+                                            score += this.config.port;
+                                        }
+                                    })
+                                        .catch((err) => console.error('ERROR REACHING PORT: ', err)));
                                 }
                             }
                         }
-                    })
-                        .catch((err) => {
-                        dnsValidationFail = true;
-                        console.error('ERROR GETTING MX: ', err);
-                    }));
-                }
-                if (this.config.spf !== -1) {
-                    promises.push(this.getTxtRecord(domain)
-                        .then((addresses) => {
-                        for (let a = 0; a < addresses.length; a++) {
-                            const address = addresses[a];
-                            if (address.indexOf('spf') !== -1) {
-                                score += this.config.spf;
-                                break;
-                            }
-                        }
-                    })
-                        .catch((err) => {
-                        console.error('ERROR GETTING TXT: ', err);
-                    }));
-                }
-                if (this.config.a !== -1) {
-                    promises.push(this.getARecord(domain)
-                        .then((addresses) => {
-                        if (addresses.length) {
-                            score += this.config.a;
-                        }
-                    })
-                        .catch((err) => {
-                        console.error('ERROR GETTING A: ', err);
-                    }));
-                }
-                yield Promise.all(promises);
-                if (dnsValidationFail) {
-                    return false;
-                }
-                if (this.config.validScore <= score) {
-                    return true;
-                }
-                else {
-                    return false;
-                }
+                    }
+                })
+                    .catch((err) => {
+                    dnsValidationFail = true;
+                    console.error('ERROR GETTING MX: ', err);
+                }));
             }
-            return true;
+            if (this.config.spf !== -1) {
+                promises.push(this.getTxtRecord()
+                    .then((addresses) => {
+                    for (let a = 0; a < addresses.length; a++) {
+                        const address = addresses[a];
+                        if (address.indexOf('spf') !== -1) {
+                            score += this.config.spf;
+                            break;
+                        }
+                    }
+                })
+                    .catch((err) => {
+                    console.error('ERROR GETTING TXT: ', err);
+                }));
+            }
+            if (this.config.a !== -1) {
+                promises.push(this.getARecord()
+                    .then((addresses) => {
+                    if (addresses.length) {
+                        score += this.config.a;
+                    }
+                })
+                    .catch((err) => {
+                    console.error('ERROR GETTING A: ', err);
+                }));
+            }
+            yield Promise.all(promises);
+            if (dnsValidationFail) {
+                return false;
+            }
+            if (this.config.validScore <= score) {
+                return true;
+            }
+            else {
+                return false;
+            }
         });
     }
-    getNsRecord(domain) {
+    getNsRecord() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 if (this.dns) {
-                    this.dns.resolve(domain, 'NS', function (err, addresses) {
-                        return __awaiter(this, void 0, void 0, function* () {
-                            if (err) {
-                                console.log(domain, ' has no NS');
-                                reject();
-                            }
-                            else if (addresses) {
-                                resolve(addresses);
-                            }
-                            else {
-                                reject();
-                            }
-                        });
-                    });
+                    this.dns.resolve(this.domain, 'NS', (err, addresses) => __awaiter(this, void 0, void 0, function* () {
+                        if (err) {
+                            console.log(this.domain, ' has no NS');
+                            reject();
+                        }
+                        else if (addresses) {
+                            resolve(addresses);
+                        }
+                        else {
+                            reject();
+                        }
+                    }));
                 }
                 else {
-                    console.error('Not in node.');
-                    resolve([]);
+                    console.error('"dns" is undefined.');
+                    reject();
                 }
             });
         });
     }
-    getARecord(domain) {
+    getARecord() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 if (this.dns) {
-                    this.dns.resolve(domain, 'A', function (err, addresses) {
-                        return __awaiter(this, void 0, void 0, function* () {
-                            if (err) {
-                                console.log(domain, ' has no NS');
-                                reject();
-                            }
-                            else if (addresses) {
-                                resolve(addresses);
-                            }
-                            else {
-                                reject();
-                            }
-                        });
-                    });
+                    this.dns.resolve(this.domain, 'A', (err, addresses) => __awaiter(this, void 0, void 0, function* () {
+                        if (err) {
+                            console.log(this.domain, ' has no NS');
+                            reject();
+                        }
+                        else if (addresses) {
+                            resolve(addresses);
+                        }
+                        else {
+                            reject();
+                        }
+                    }));
                 }
                 else {
-                    console.error('Not in node.');
-                    resolve([]);
+                    console.error('"dns" is undefined.');
+                    reject();
                 }
             });
         });
     }
-    getMxRecord(domain) {
+    getMxRecord() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 if (this.dns) {
-                    this.dns.resolve(domain, 'MX', function (err, addresses) {
-                        return __awaiter(this, void 0, void 0, function* () {
-                            if (err) {
-                                console.log(domain, ' has no MX');
-                                reject();
-                            }
-                            else if (addresses) {
-                                resolve(addresses);
-                            }
-                            else {
-                                reject();
-                            }
-                        });
-                    });
+                    this.dns.resolve(this.domain, 'MX', (err, addresses) => __awaiter(this, void 0, void 0, function* () {
+                        if (err) {
+                            console.log(this.domain, ' has no MX');
+                            reject();
+                        }
+                        else if (addresses) {
+                            resolve(addresses);
+                        }
+                        else {
+                            reject();
+                        }
+                    }));
                 }
                 else {
-                    console.error('Not in node.');
-                    resolve([]);
+                    console.error('"dns" is undefined.');
+                    reject();
                 }
             });
         });
     }
-    getTxtRecord(domain) {
+    getTxtRecord() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 if (this.dns) {
-                    this.dns.resolve(domain, 'TXT', function (err, addresses) {
-                        return __awaiter(this, void 0, void 0, function* () {
-                            if (err) {
-                                console.log(domain, ' has no TXT');
-                                reject();
-                            }
-                            else if (addresses) {
-                                resolve(addresses);
-                            }
-                            else {
-                                reject();
-                            }
-                        });
-                    });
+                    this.dns.resolve(this.domain, 'TXT', (err, addresses) => __awaiter(this, void 0, void 0, function* () {
+                        if (err) {
+                            console.log(this.domain, ' has no TXT');
+                            reject();
+                        }
+                        else if (addresses) {
+                            resolve(addresses);
+                        }
+                        else {
+                            reject();
+                        }
+                    }));
                 }
                 else {
-                    console.error('Not in node.');
-                    resolve([]);
+                    console.error('"dns" is undefined.');
+                    reject();
                 }
             });
         });
@@ -242,8 +242,8 @@ class EmailDnsValidator {
                     });
                 }
                 else {
-                    console.error('Not in node.');
-                    resolve(true);
+                    console.error('"net" is undefined.');
+                    reject();
                 }
             });
             try {
@@ -258,11 +258,46 @@ class EmailDnsValidator {
     validate(email) {
         return __awaiter(this, void 0, void 0, function* () {
             this.email = email;
-            const dnsValid = yield this.validateDNS();
-            if (!dnsValid) {
-                return false;
+            this.domain = this.email.slice(this.email.indexOf('@') + 1);
+            if (!this.dependenciesSetup) {
+                yield this.setupDependencies();
             }
-            return true;
+            if (this.canValidate) {
+                return yield this.validateDNS();
+            }
+            else {
+                console.error('Cannot validate.');
+                return true;
+            }
+        });
+    }
+    isGSuiteMX(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.email = email;
+            this.domain = this.email.slice(this.email.indexOf('@') + 1);
+            if (!this.dependenciesSetup) {
+                yield this.setupDependencies();
+            }
+            let isGSuite = false;
+            try {
+                const addresses = yield this.getMxRecord();
+                if (addresses) {
+                    for (let a = 0; a < addresses.length; a++) {
+                        const address = addresses[a];
+                        const domain = address.exchange;
+                        if (domain.indexOf('gmail-smtp-in.l.google.com') !== -1) {
+                            isGSuite = true;
+                        }
+                        else if (domain.indexOf('aspmx.l.google.com') !== -1) {
+                            isGSuite = true;
+                        }
+                    }
+                }
+            }
+            catch (getMxRecordErr) {
+                console.error('ERROR GETTING MX: ', getMxRecordErr);
+            }
+            return isGSuite;
         });
     }
 }

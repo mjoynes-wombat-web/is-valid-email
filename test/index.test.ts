@@ -33,7 +33,9 @@ describe('Check sanitizer. | Base config.', async () => {
 
 describe('Check sanitizer. | Lowercase false.', async () => {
   const emailSanitizer = new EmailSanitizer({
-    lowercase: false,
+    common: {
+      lowercase: false,
+    },
   })
   const uppercasedEmail = 'tesT@example.com'
   const sanitizedUppercasedEmail = emailSanitizer.sanitize(uppercasedEmail)
@@ -62,9 +64,12 @@ describe('Check sanitizer. | Lowercase false.', async () => {
     ))
 })
 
-describe('Check sanitizer. | Gmail false.', async () => {
+describe('Check sanitizer. | Gsuite sanitize.', async () => {
   const emailSanitizer = new EmailSanitizer({
-    gmail: false,
+    local: {
+      removePeriods: true,
+      removePlusTag: true,
+    },
   })
   const uppercasedEmail = 'tesT@example.com'
   const sanitizedUppercasedEmail = emailSanitizer.sanitize(uppercasedEmail)
@@ -75,15 +80,13 @@ describe('Check sanitizer. | Gmail false.', async () => {
   const sanitizedGmailEmailWPeriods =
     emailSanitizer.sanitize(gmailEmailWPeriods)
   it(`When sanitize gmail is true then gmail emails should retain their periods. (${gmailEmailWPeriods} - ${sanitizedGmailEmailWPeriods})`, () =>
-    expect(sanitizedGmailEmailWPeriods).to.equal('test.testing@gmail.com'))
+    expect(sanitizedGmailEmailWPeriods).to.equal('testtesting@gmail.com'))
 
   const gmailEmailWComment = 'test+thisisacomment@gmail.com'
   const sanitizedGmailEmailWComment =
     emailSanitizer.sanitize(gmailEmailWComment)
   it(`When sanitize gmail is true then gmail emails should retain their comments. (${gmailEmailWComment} - ${sanitizedGmailEmailWComment})`, () =>
-    expect(sanitizedGmailEmailWComment).to.equal(
-      'test+thisisacomment@gmail.com'
-    ))
+    expect(sanitizedGmailEmailWComment).to.equal('test@gmail.com'))
 
   const gmailEmailNeedingSanitization = 'test.testing+thisisacomment@gmail.com'
   const sanitizedGmailEmailNeedingSanitization = emailSanitizer.sanitize(
@@ -91,7 +94,7 @@ describe('Check sanitizer. | Gmail false.', async () => {
   )
   it(`When sanitize gmail is true then gmail emails should retain their comments and periods. (${gmailEmailNeedingSanitization} - ${sanitizedGmailEmailNeedingSanitization})`, () =>
     expect(sanitizedGmailEmailNeedingSanitization).to.equal(
-      'test.testing+thisisacomment@gmail.com'
+      'testtesting@gmail.com'
     ))
 })
 

@@ -1,7 +1,12 @@
 class EmailSanitizer {
   defaultConfig: SanitizeConfig = {
-    lowercase: true,
-    gmail: true,
+    common: {
+      lowercase: true,
+    },
+    local: {
+      removePeriods: false,
+      removePlusTag: false,
+    },
   }
   config: SanitizeConfig = this.defaultConfig
   email = ''
@@ -11,39 +16,54 @@ class EmailSanitizer {
     let key: keyof SanitizeParam
 
     for (key in configParam) {
-      this.config[key] = configParam[key] as boolean
+      const configGroup = configParam[key]
+      for (const subKey in configGroup) {
+        const subKeyType = subKey as keyof typeof configGroup
+        this.config[key][subKeyType] = configGroup[subKeyType]
+      }
     }
   }
   public sanitize(email: string) {
     this.originalEmail = email
     this.email = email
 
-    if (this.config.lowercase) {
+    if (this.config.common.lowercase) {
       this.email = this.email.toLowerCase()
     }
 
-    if (this.config.gmail) {
-      this.sanitizeGmail()
+    if (this.config.local.removePeriods) {
+      this.removePeriodsFromLocal()
+    }
+
+    if (this.config.local.removePlusTag) {
+      this.removePlusTag()
     }
 
     return this.email
   }
-  private sanitizeGmail() {
-    const lowercase = this.email.toLowerCase()
-    const gmailIndex = lowercase.indexOf('@gmail.com')
-    if (gmailIndex > 0) {
-      const gmail = this.email.slice(gmailIndex, this.email.length)
+  private removePeriodsFromLocal() {
+    const atIndex = this.email.indexOf('@')
+    if (atIndex !== -1) {
+      const domain = this.email.slice(atIndex, this.email.length)
       this.email = `${this.email
         .substring(0, this.email.indexOf('@'))
-        .replace(/\./g, '')}${gmail}`
+        .replace(/\./g, '')}${domain}`
+    }
+  }
+  private removePlusTag() {
+    const atIndex = this.email.indexOf('@')
+    if (atIndex !== -1) {
+      const domain = this.email.slice(atIndex, this.email.length)
 
-      if (this.email.indexOf('+') > 0) {
-        this.email = `${this.email.substring(
-          0,
-          this.email.indexOf('+')
-        )}${gmail}`
+      const plusIndex = this.email.indexOf('+')
+      if (plusIndex !== -1 && plusIndex < atIndex) {
+        this.email = `${this.email.substring(0, plusIndex)}${domain}`
       }
     }
+  }
+  public sanitizeGSuite() {
+    this.removePeriodsFromLocal()
+    this.removePlusTag()
   }
 }
 

@@ -1,12 +1,12 @@
 interface EmailValidatorConfig {
-  local: LocalConfig
-  domain: DomainConfig
+  local: LocalValidateConfig
+  domain: DomainValidateConfig
 }
 interface EmailValidatorParam {
-  local?: LocalConfig
-  domain?: DomainConfig
+  local?: LocalValidateConfig
+  domain?: DomainValidateConfig
 }
-type LocalConfig = {
+type LocalValidateConfig = {
   alphaUpper: boolean
   alphaLower: boolean
   numeric: boolean
@@ -17,7 +17,7 @@ type LocalConfig = {
   spaces: boolean
 }
 
-type DomainConfig = {
+type DomainValidateConfig = {
   alphaUpper: boolean
   alphaLower: boolean
   numeric: boolean
@@ -49,12 +49,21 @@ type DnsParam = {
   smtpPorts: number[]
 }
 
-type SanitizeConfig = {
+type LocalSanitizeConfig = {
+  removePeriods: boolean
+  removePlusTag: boolean
+}
+
+type CommonSanitizeConfig = {
   lowercase: boolean
-  gmail: boolean
+}
+
+type SanitizeConfig = {
+  common: CommonSanitizeConfig
+  local: LocalSanitizeConfig
 }
 
 type SanitizeParam = {
-  lowercase?: boolean
-  gmail?: boolean
+  common?: CommonSanitizeConfig
+  local?: LocalSanitizeConfig
 }
