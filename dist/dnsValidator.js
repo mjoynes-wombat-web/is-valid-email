@@ -297,9 +297,34 @@ class EmailDnsValidator {
                 }
             }
             catch (getMxRecordErr) {
-                console.error('ERROR GETTING MX: ', getMxRecordErr);
+                console.error('ERROR GETTING MX in isGSuiteMX: ', getMxRecordErr);
             }
             return isGSuite;
+        });
+    }
+    isDefaultNamecheapMX(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.setEmailDetails(email);
+            if (!this.dependenciesSetup) {
+                yield this.setupDependencies();
+            }
+            let isDefaultNamecheapMX = false;
+            try {
+                const addresses = yield this.getMxRecord();
+                if (addresses) {
+                    for (let a = 0; a < addresses.length; a++) {
+                        const address = addresses[a];
+                        const domain = address.exchange.toLowerCase();
+                        if (domain.indexOf('registrar-servers.com') !== -1) {
+                            isDefaultNamecheapMX = true;
+                        }
+                    }
+                }
+            }
+            catch (getMxRecordErr) {
+                console.error('ERROR GETTING MX in isDefaultNamecheapMX: ', getMxRecordErr);
+            }
+            return isDefaultNamecheapMX;
         });
     }
 }

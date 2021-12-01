@@ -314,10 +314,42 @@ class EmailDnsValidator {
         }
       }
     } catch (getMxRecordErr) {
-      console.error('ERROR GETTING MX: ', getMxRecordErr)
+      console.error('ERROR GETTING MX in isGSuiteMX: ', getMxRecordErr)
     }
 
     return isGSuite
+  }
+  public async isDefaultNamecheapMX(email: string) {
+    this.setEmailDetails(email)
+
+    if (!this.dependenciesSetup) {
+      await this.setupDependencies()
+    }
+
+    let isDefaultNamecheapMX = false
+
+    try {
+      const addresses = await this.getMxRecord()
+
+      if (addresses) {
+        for (let a = 0; a < addresses.length; a++) {
+          const address = addresses[a]
+
+          const domain = address.exchange.toLowerCase()
+
+          if (domain.indexOf('registrar-servers.com') !== -1) {
+            isDefaultNamecheapMX = true
+          }
+        }
+      }
+    } catch (getMxRecordErr) {
+      console.error(
+        'ERROR GETTING MX in isDefaultNamecheapMX: ',
+        getMxRecordErr
+      )
+    }
+
+    return isDefaultNamecheapMX
   }
 }
 
